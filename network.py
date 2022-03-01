@@ -78,6 +78,8 @@ def avg_clustering_coefficient(G):
 def plot_deg_distribution(G):
     degrees = [G.degree(n) for n in G.nodes()]
     plt.hist(degrees)
+    plt.xlabel('k')
+    plt.ylabel('p(k)')
     plt.show()
 
 def main(n_inp:int, p_inp:float):
@@ -85,8 +87,8 @@ def main(n_inp:int, p_inp:float):
         configuration will be run 30 times.
 
         Parameters:
-        n: number of nodes of network
-        p: probabiliy of pair of nodes linking
+        n_inp: number of nodes of network given by us
+        p_inp: probabiliy of pair of nodes linking given by us
 
         Returns: 
         None
@@ -101,9 +103,9 @@ def main(n_inp:int, p_inp:float):
         avg_avg_pathlen += avg_pathlen(g)
         avg_avg_clust += avg_clustering_coefficient(g)
 
-    avg_avg_pathlen = avg_avg_pathlen/10
-    avg_avg_deg = avg_avg_deg/10
-    avg_avg_clust = avg_avg_clust/10
+    avg_avg_pathlen = round(avg_avg_pathlen/10,4)
+    avg_avg_deg = round(avg_avg_deg/10,4)
+    avg_avg_clust = round(avg_avg_clust/10,4)
 
     print(
         "Average Estimates for configuration n =",n_inp,"p=",p_inp,
@@ -114,6 +116,6 @@ def main(n_inp:int, p_inp:float):
 
     plot_deg_distribution(create_network(n_inp,p_inp))
 
-main(100,0.08)
-
-#main(10000, 0.02)
+main(15,0.40)
+main(100,0.10)
+main(1000, 0.02)
