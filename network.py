@@ -1,50 +1,119 @@
 import random
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import networkx as nx
 
 def create_network(n:int, p:float):
-    """ Creates an adjacency list representation of an Erdos-Renyi network
+    """ Creates a graphical representation of an Erdos-Renyi network
 
         Parameters: 
-        -self: mandatory reference to this object.
         -n: number of nodes of the network.
         -p: probability that each pair of nodes will be connected.
 
         Returns:
-        An adjacency matrix representation of the Erdos-Renyi network, in the form of a nested list.
+        An graph representing an Erdos-Renyi network with the given n and p.
     """
-    adj_mat = []
+    "creating empty graph"
+    G = nx.Graph()
 
-    for i in range(n):
-        #populating the list with 0s first.
-        adj_mat.append([0]*n)
+    "adding nodes"
+    G.add_nodes_from(range(1,n+1))
 
-    for r in range(n):
-        for c in range(n):
-            if (r < c):
-                #generating a random number to create links based on probability
-                temp_p = random.random()
-                if temp_p < p:
-                    adj_mat[r][c] = 1
+    "adding edges randomly based on probability p"
+    for i in G.nodes():
+        for j in G.nodes():
+            if i < j:
+                temp_prob = random.random()
+                if temp_prob < p:
+                    G.add_edge(i,j)
 
-    return adj_mat
+    return G
 
 def avg_degree(G):
-    pass
+    """ Calculates the average degree of the given graph.
 
-def avg_cluster(G):
-    pass
+        Parameters: 
+        -G: the graph in the form of a networkx graph.
+
+        Returns:
+        Average degree of the graph.
+    """
+    sum_degrees = 0
+    num_nodes = len(G.nodes())
+
+    for nodes in G.nodes():
+        deg = G.degree[nodes]
+        sum_degrees += deg
+
+    avg_degree = sum_degrees/num_nodes
+
+    return avg_degree
 
 def avg_pathlen(G):
-    pass
+    """ Calculates the average path length of the given graph.
 
-def plot(G):
-    pass
+        Parameters: 
+        -G: the graph in the form of a networkx graph.
 
+        Returns:
+        Average path length of the graph.
+    """
+    return nx.average_shortest_path_length(G,False)
 
+def avg_clustering_coefficient(G):
+    """ Calculates the average clustering coefficient of each node of the given graph.
 
-# a = create_network(5,0.5)
-# for n in a:
-#     print(n,'\n')
+        Parameters: 
+        -G: the graph whose average degree is being calculates.
 
+        Returns:
+        Average clustering coefficient of the graph
+    """
+    total_clustering = 0
+    for node in G.nodes():
+        total_clustering += nx.clustering(G, node)
+    avg = total_clustering/len(G.nodes())
 
-      
+    return avg
+
+def plot_deg_distribution(G):
+    degrees = [G.degree(n) for n in G.nodes()]
+    plt.hist(degrees)
+    plt.show()
+
+def main(n_inp:int, p_inp:float):
+    """ main function to call functions and handle each configuration of the network, where each
+        configuration will be run 30 times.
+
+        Parameters:
+        n: number of nodes of network
+        p: probabiliy of pair of nodes linking
+
+        Returns: 
+        None
+    """ 
+    avg_avg_deg = 0
+    avg_avg_pathlen = 0
+    avg_avg_clust = 0
+
+    for i in range(10):
+        g = create_network(n_inp, p_inp)
+        avg_avg_deg += avg_degree(g)
+        avg_avg_pathlen += avg_pathlen(g)
+        avg_avg_clust += avg_clustering_coefficient(g)
+
+    avg_avg_pathlen = avg_avg_pathlen/10
+    avg_avg_deg = avg_avg_deg/10
+    avg_avg_clust = avg_avg_clust/10
+
+    print(
+        "Average Estimates for configuration n =",n_inp,"p=",p_inp,
+          ":\n Average Degree:",avg_avg_deg,
+          "\n Average Path length:",avg_avg_pathlen,
+          "\n Average Clustering Coefficient:",avg_avg_clust
+         )
+
+    plot_deg_distribution(create_network(n_inp,p_inp))
+
+main(100,0.08)
+
+#main(10000, 0.02)
